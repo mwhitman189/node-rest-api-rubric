@@ -7,7 +7,11 @@ const mongoose = require('mongoose')
 const productRoutes = require('./api/routes/products')
 const orderRoutes = require('./api/routes/orders')
 
-mongoose.connect(`mongodb+srv://mileswhitman01:${process.env.MONGO_ATLAS_PW}@cluster0.ak81c.gcp.mongodb.net/PERAPERAEXCHANGE?retryWrites=true&w=majority`)
+mongoose.connect(
+    `mongodb+srv://mileswhitman01:${process.env.MONGO_ATLAS_PW}@cluster0.ak81c.gcp.mongodb.net/<dbname>?retryWrites=true&w=majority`, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
 
 app.use(morgan('dev'))
 // Allow for extraction of url encoded data
