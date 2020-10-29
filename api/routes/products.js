@@ -5,9 +5,25 @@ const mongoose = require('mongoose')
 const Product = require('../models/product')
 
 router.get('/', (req, res, next) => {
-    res.status(200).json({
-        msg: "Handling GET requests to /products"
-    })
+    Product.find()
+        .exec()
+        .then(docs => {
+            if (docs) {
+                console.log(docs)
+                res.status(200).json({
+                    msg: "Handling GET requests to /products",
+                    products: docs
+                })
+            } else {
+                res.status(404).json({
+                    msg: "No items found"
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({ error: err })
+        })
 })
 
 router.post('/', (req, res, next) => {
@@ -16,24 +32,29 @@ router.post('/', (req, res, next) => {
         name: req.body.name,
         price: req.body.price
     })
-    product.save().then(result => {
-        res.status(201).json({
-            msg: "Handling POST requests to /products",
-            product: result
+    product.save()
+        .then(result => {
+            res.status(201).json({
+                msg: "Handling POST requests to /products",
+                product: result
+            })
+        }).catch(err => {
+            console.log(err)
+            res.status(500).json({ error: err })
         })
-    }).catch(err => console.log(err))
 })
 
 router.get('/:productId', (req, res, next) => {
     const id = req.params.productId
-    res.status(200).json({
-        msg: `Product with id of "${id}" is available!`,
-        id: id
-    })
-    Product.findById(id).exec()
+    Product.findById(id)
+        .exec()
         .then(doc => {
-            console.log(doc)
-            res.status(200).json(doc)
+            if (doc) {
+                console.log(doc)
+                res.status(200).json(doc)
+            } else {
+                res.status(404).json({ msg: `No valid entry was found for ID '${id}'` })
+            }
         })
         .catch(err => {
             console.log(err)
@@ -43,6 +64,11 @@ router.get('/:productId', (req, res, next) => {
 
 router.patch('/:productId', (req, res, next) => {
     const id = req.params.productId
+    Product.findById(id)
+        .exec()
+        .then(doc => {
+            console.log(doc)
+        })
     res.status(200).json({
         msg: "Update successful!"
     })
