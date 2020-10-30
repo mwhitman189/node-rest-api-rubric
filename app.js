@@ -12,6 +12,8 @@ mongoose.connect(
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
+// Use default node.js promises to prevent deprecation warning
+mongoose.Promise = global.Promise
 
 app.use(morgan('dev'))
 // Allow for extraction of url encoded data
