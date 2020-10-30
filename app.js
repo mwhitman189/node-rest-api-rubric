@@ -8,7 +8,7 @@ const productRoutes = require('./api/routes/products')
 const orderRoutes = require('./api/routes/orders')
 
 mongoose.connect(
-    `mongodb+srv://mileswhitman01:${process.env.MONGO_ATLAS_PW}@cluster0.ak81c.gcp.mongodb.net/<dbname>?retryWrites=true&w=majority`, {
+    `mongodb://mileswhitman01:${process.env.MONGO_ATLAS_PW}@cluster0-shard-00-00.ak81c.gcp.mongodb.net:27017,cluster0-shard-00-01.ak81c.gcp.mongodb.net:27017,cluster0-shard-00-02.ak81c.gcp.mongodb.net:27017/test?ssl=true&replicaSet=atlas-18uqmr-shard-0&authSource=admin&retryWrites=true&w=majority`, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })

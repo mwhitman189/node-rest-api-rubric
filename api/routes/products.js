@@ -8,17 +8,8 @@ router.get('/', (req, res, next) => {
     Product.find()
         .exec()
         .then(docs => {
-            if (docs) {
-                console.log(docs)
-                res.status(200).json({
-                    msg: "Handling GET requests to /products",
-                    products: docs
-                })
-            } else {
-                res.status(404).json({
-                    msg: "No items found"
-                })
-            }
+            console.log(docs)
+            res.status(200).json(docs)
         })
         .catch(err => {
             console.log(err)
@@ -64,21 +55,26 @@ router.get('/:productId', (req, res, next) => {
 
 router.patch('/:productId', (req, res, next) => {
     const id = req.params.productId
-    Product.findById(id)
+    const props = req.body
+    Product.update({ _id: id }, props)
         .exec()
         .then(doc => {
             console.log(doc)
+            res.status(200).json(doc)
+        }).catch(err => {
+            res.status(500).json({ error: err })
         })
-    res.status(200).json({
-        msg: "Update successful!"
-    })
 })
 
 router.delete('/:productId', (req, res, next) => {
     const id = req.params.productId
-    res.status(200).json({
-        msg: "Delete successful!"
-    })
+    Product.findByIdAndDelete(id)
+        .exec()
+        .then(result => {
+            res.status(200).json({ msg: "Deletion successful" })
+        }).catch(err => {
+            res.status(500).json({ error: err })
+        })
 })
 
 module.exports = router
