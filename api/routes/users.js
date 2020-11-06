@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 
 
-const User = require('../models/user')
+const User = require('../models/users')
 
 router.post('/signup', (req, res, next) => {
     User.find({ email: req.body.email })
@@ -45,6 +45,42 @@ router.post('/signup', (req, res, next) => {
                     }
                 })
             }
+        })
+})
+
+router.post('/login', (req, res, next) => {
+    const { email, password } = req.body
+
+    User.findOne({ email: email })
+        .exec()
+        .then(user => {
+            if (user.length < 1) {
+                return res.status(401).json({
+                    message: "Authentication failed"
+                })
+            }
+
+            const hashed_pw = user.password
+            bcrypt.compare(password, hashed_pw, function (err, result) {
+                if (err) {
+                    return res.status(401).json({
+                        message: "Authentication failed"
+                    })
+                }
+                if (result) {
+                    res.status(200).json({
+                        message: "Authentication successful!"
+                    })
+                }
+                return res.status(401).json({
+                    message: "Authentication failed"
+                })
+            })
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
         })
 })
 
