@@ -12,11 +12,9 @@ Thank you to [Academind](https://www.youtube.com/channel/UCSJbGtTlrDami-tDGPUV9-
    - mongoose: MongoDb object modeler
    - morgan: HTTP request logger middleware for handling JWTs
    - multer: Middleware to handling multipart/form-data, used for uploading files (images)
-   - nodemon: Tool for automating restart of server on file changes
-   `npm install bcrypt body-parser express jsonwebtoken mongoose morgan multer --save`
-   `npm install nodemon --save-dev`
-
-2. 
+   - nodemon: Tool for automating restart of server on file changes  
+    `npm install bcrypt body-parser express jsonwebtoken mongoose morgan multer --save`  
+    `npm install nodemon --save-dev`
 
 ## Running the server
 `npm start`
