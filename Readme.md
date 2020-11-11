@@ -18,3 +18,11 @@ Thank you to [Academind](https://www.youtube.com/channel/UCSJbGtTlrDami-tDGPUV9-
 
 ## Running the server
 `npm start`
+
+## Auth API
+`POST /login` requires "email" and "password" in the request body. If the user is authenticated,
+an `accessToken` and a `refreshToken` will be returned.
+
+`POST /token` requires the `refreshToken` received during login, and returns a new `accessToken`.
+
+`GET /logout` removes the `refreshToken`, and logs the user out.
