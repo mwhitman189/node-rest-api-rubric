@@ -2,6 +2,8 @@ const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
 const multer = require('multer')
+const checkAuth = require('../middleware/check-auth')
+
 
 // Create an uploads folder, and the define the destination and filename methods
 const storage = multer.diskStorage({
@@ -56,14 +58,14 @@ router.get('/', (req, res, next) => {
                     }
                 })
             }
-            res.status(200).json(response)
+            return res.status(200).json(response)
         })
         .catch(err => {
-            res.status(500).json({ error: err })
+            return res.status(500).json({ error: err })
         })
 })
 
-router.post('/', upload.single('productImage'), (req, res, next) => {
+router.post('/', checkAuth, upload.single('productImage'), (req, res, next) => {
     const product = new Product({
         _id: new mongoose.Types.ObjectId,
         name: req.body.name,
@@ -72,7 +74,7 @@ router.post('/', upload.single('productImage'), (req, res, next) => {
     })
     product.save()
         .then(({ _id, name, price }) => {
-            res.status(201).json({
+            return res.status(201).json({
                 msg: "Product successfully added",
                 product: {
                     _id: _id,
@@ -85,8 +87,7 @@ router.post('/', upload.single('productImage'), (req, res, next) => {
                 }
             })
         }).catch(err => {
-            console.log(err)
-            res.status(500).json({ error: err })
+            return res.status(500).json({ error: err })
         })
 })
 
@@ -97,7 +98,7 @@ router.get('/:productId', (req, res, next) => {
         .exec()
         .then(doc => {
             if (doc) {
-                res.status(200).json({
+                return res.status(200).json({
                     product: doc,
                     request: {
                         type: 'GET',
@@ -106,22 +107,22 @@ router.get('/:productId', (req, res, next) => {
                     }
                 })
             } else {
-                res.status(404).json({ msg: `No valid entry was found for ID '${id}'` })
+                return res.status(404).json({ msg: `No valid entry was found for ID '${id}'` })
             }
         })
         .catch(err => {
-            res.status(500).json({ error: err })
+            return res.status(500).json({ error: err })
         })
 })
 
-router.patch('/:productId', (req, res, next) => {
+router.patch('/:productId', checkAuth, (req, res, next) => {
     const id = req.params.productId
     const props = req.body
     Product.update({ _id: id }, props)
         .select('-__v')
         .exec()
         .then(doc => {
-            res.status(200).json({
+            return res.status(200).json({
                 msg: "Product updated",
                 request: {
                     type: 'GET',
@@ -129,21 +130,21 @@ router.patch('/:productId', (req, res, next) => {
                 }
             })
         }).catch(err => {
-            res.status(500).json({ error: err })
+            return res.status(500).json({ error: err })
         })
 })
 
-router.delete('/:productId', (req, res, next) => {
+router.delete('/:productId', checkAuth, (req, res, next) => {
     const id = req.params.productId
     Product.findByIdAndDelete(id)
         .exec()
         .then(result => {
-            res.status(200).json({
+            return res.status(200).json({
                 msg: "Deletion successful",
                 url: PRODUCTS_URL
             })
         }).catch(err => {
-            res.status(500).json({ error: err })
+            return res.status(500).json({ error: err })
         })
 })
 

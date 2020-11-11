@@ -1,7 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
-const { restart } = require('nodemon')
 const router = express.Router()
+const checkAuth = require('../middleware/check-auth')
 
 const Order = require('../models/order')
 const Product = require('../models/product')
@@ -9,7 +9,7 @@ const Product = require('../models/product')
 const ORDERS_URL = 'http://localhost:3000/orders/'
 
 
-router.get('/', (req, res, next) => {
+router.get('/', checkAuth, (req, res, next) => {
     Order.find()
         .select('-__v')
         .exec()
@@ -36,7 +36,7 @@ router.get('/', (req, res, next) => {
         })
 })
 
-router.post('/', (req, res, next) => {
+router.post('/', checkAuth, (req, res, next) => {
     Product.findById(req.body.productId)
         .then(product => {
             console.log(product)
@@ -51,7 +51,7 @@ router.post('/', (req, res, next) => {
                 quantity: req.body.quantity,
                 product: req.body.productId
             })
-            return order.save()
+            order.save()
                 .then(result => {
                     res.status(201).json({
                         msg: "Order stored",
@@ -74,7 +74,7 @@ router.post('/', (req, res, next) => {
         })
 })
 
-router.get('/:orderId', (req, res, next) => {
+router.get('/:orderId', checkAuth, (req, res, next) => {
     Order.findById(req.params.orderId)
         .exec()
         .then(order => {
@@ -98,7 +98,7 @@ router.get('/:orderId', (req, res, next) => {
         })
 })
 
-router.delete('/:orderId', (req, res, next) => {
+router.delete('/:orderId', checkAuth, (req, res, next) => {
     Order.remove({ _id: req.params.orderId })
         .exec()
         .then(result => {
@@ -111,7 +111,11 @@ router.delete('/:orderId', (req, res, next) => {
                 }
             })
         })
-        .catch()
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
+        })
 })
 
 module.exports = router
