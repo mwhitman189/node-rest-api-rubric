@@ -6,6 +6,9 @@ const jwt = require('jsonwebtoken')
 
 
 const User = require('../models/users')
+const { restart } = require('nodemon')
+
+const refreshTokens = []
 
 router.post('/signup', (req, res, next) => {
     User.find({ email: req.body.email })
@@ -70,16 +73,24 @@ router.post('/login', (req, res, next) => {
                     })
                 }
                 if (result) {
-                    const token = jwt.sign({
+                    const accessToken = jwt.sign({
                         email: user.email,
                         userId: user._id
                     }, process.env.JWT_KEY,
                         {
-                            expiresIn: "1h"
+                            expiresIn: '1h'
                         })
+
+                    const refreshToken = jwt.sign({
+                        email: user.email,
+                        userId: user._id
+                    }, process.env.JWT_REFRESH_KEY)
+                    refreshTokens.push(refreshToken)
+
                     return res.status(200).json({
                         message: "Authentication successful!",
-                        token: token
+                        token: accessToken,
+                        refreshToken: refreshToken
                     })
                 }
                 res.status(401).json({
@@ -93,6 +104,51 @@ router.post('/login', (req, res, next) => {
                 message: "Login failed"
             })
         })
+})
+
+// Add endpoint for refreshing the accessToken
+router.post('/token', (req, res, next) => {
+    const { refreshToken } = req.body
+
+    if (!refreshToken) {
+        return res.status(401).json({
+            message: "No token present"
+        })
+    }
+
+    if (!refreshTokens.includes(refreshToken)) {
+        return res.status(403).json({
+            message: "Unauthorized action"
+        })
+    }
+
+    jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (err, user) => {
+        if (err) {
+            res.status(403).json({
+                error: err
+            })
+        }
+
+        const accessToken = jwt.sign({
+            email: user.email,
+            userId: user._id
+        }, process.env.JWT_KEY,
+            {
+                expiresIn: '1h'
+            })
+        res.status(200).json({
+            accessToken
+        })
+    })
+})
+
+router.post('/logout', (req, res, next) => {
+    const { token } = req.body
+    refreshTokens = refreshTokens.filter(t => t !== token)
+
+    res.status(200).json({
+        message: "User successfully logged out"
+    })
 })
 
 router.delete('/:userId', (req, res, next) => {

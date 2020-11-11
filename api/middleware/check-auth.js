@@ -2,7 +2,9 @@ const jwt = require('jsonwebtoken')
 
 module.exports = (req, res, next) => {
     try {
-        const decoded = jwt.verify(req.body.token, process.env.JWT_KEY)
+        // Check for token in headers, then remove whitespace between 'Bearer' and token
+        const token = req.headers.authorization.split(" ")[ 1 ]
+        const decoded = jwt.verify(token, process.env.JWT_KEY)
         req.userData = decoded
         // next() was attempting to set headers a second time. Calling res.end() fixes this
         return next()
